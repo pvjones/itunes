@@ -1,4 +1,4 @@
-angular.module('itunes').service('itunesService', function($http, $q){
+angular.module('itunes').service('itunesService', function($http) {
   //This service is what will do the 'heavy lifting' and get our data from the iTunes API.
   //Also note that we're using a 'service' and not a 'factory' so all your methods you want to call in your controller need to be on 'this'.
 
@@ -7,16 +7,37 @@ angular.module('itunes').service('itunesService', function($http, $q){
   //Note that in the above line, artist is the parameter being passed in. 
   //You can return the http request or you can make your own promise in order to manipulate the data before you resolve it.
 
-    //Code here
-    
+  //Code here
+  this.getSongData = function(artist) {
+    return $http({
+      method: 'JSONP',
+      url: 'https://itunes.apple.com/search?term=' + artist + '&callback=JSON_CALLBACK'
+    }).then(function(response) {
+      var resultsArray = response.data.results
+      var songData = [];
+      for (var i = 0; i < resultsArray.length; i++) {
 
+        var newSong = {};
 
+        newSong.AlbumArt = resultsArray[i].artworkUrl100;
+        newSong.Artist = resultsArray[i].artistName;
+        newSong.Collection = resultsArray[i].collectionName;
+        newSong.CollectionPrice = resultsArray[i].collectionPrice;
+        newSong.Play = resultsArray[i].previewUrl;
+        newSong.Type = resultsArray[i].kind;
 
+        songData.push(newSong);
 
-    // Go to the next step in the README (Tie in your controller). You will come back to these instructions shortly.
-    // 
-    // You need to sort the data you get back from the itunes API to be an object in the following format.
-    /*
+      }
+
+      return songData;
+    });
+  };
+
+  // Go to the next step in the README (Tie in your controller). You will come back to these instructions shortly.
+  // 
+  // You need to sort the data you get back from the itunes API to be an object in the following format.
+  /*
       AlbumArt: "http://a3.mzstatic.com/us/r30/Features4/v4/22/be/30/22be305b-d988-4525-453c-7203af1dc5a3/dj.srlprmuo.100x100-75.jpg"
       Artist: "Nelly"
       Collection: "Nellyville"
